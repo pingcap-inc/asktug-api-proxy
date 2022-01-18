@@ -11,10 +11,14 @@ const accountsClient = Axios.create({
  * @returns {Promise<string>}
  */
 module.exports.getUsername = async (ctx) => {
-  const { data } = await accountsClient.get('/api/me', {
-    headers: {
-      cookie: ctx.get('cookie')
-    }
-  })
-  return data.data.username
+  try {
+    const { data } = await accountsClient.get('/api/me', {
+      headers: {
+        cookie: ctx.get('cookie')
+      }
+    })
+    return data.data.username
+  } catch (e) {
+    return undefined
+  }
 }

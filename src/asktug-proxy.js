@@ -11,6 +11,13 @@ const httpsAgent = new HttpsAgent({
   keepAlive: true
 })
 
+/**
+ *
+ * @param url
+ * @param options
+ * @param cb
+ * @return {ClientRequest}
+ */
 const request = (url, options, cb) => {
   if (/^https:\/\//.test(url)) {
     return httpsRequest(url, { ...options, agent: httpsAgent }, cb)
@@ -29,14 +36,18 @@ function proxyAsktug (ctx, username) {
   const { req, res } = ctx
 
   return new Promise((resolve, reject) => {
-    request(asktug.url + req.url, {
-      method: 'get',
-      timeout: 1500,
-      headers: {
+    const authHeaders = username ? {
         'Api-Key': asktug.token,
         'Api-Username': username,
+      } : {}
+
+    const clientRequest = request(asktug.url + req.url, {
+      method: req.method,
+      timeout: 1500,
+      headers: {
+        ...authHeaders,
         'Accept': 'application/json'
-      }
+      },
     }, asktugRes => {
       res.statusCode = asktugRes.statusCode
       res.statusMessage = asktugRes.statusMessage
@@ -59,7 +70,10 @@ function proxyAsktug (ctx, username) {
           res.write(err.message)
           reject(err)
         })
-    }).end()
+    })
+
+    req.pipe(clientRequest)
+    clientRequest.end()
   })
 
 }
