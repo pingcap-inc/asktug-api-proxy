@@ -72,8 +72,11 @@ function proxyAsktug (ctx, username) {
         })
     })
 
-    req.pipe(clientRequest)
-    clientRequest.end()
+    req
+      .pipe(clientRequest)
+      .on('end', () => {
+        clientRequest.end()
+      })
   })
 
 }
