@@ -6,6 +6,14 @@ const app = new Koa()
 
 app.use(logger())
 
+app.use(async (ctx, next) => {
+  try {
+    await next()
+  } catch (e) {
+    console.error(e)
+  }
+})
+
 // ENV
 // ACCOUNTS_COOKIE_NAME
 app.use(async ctx => {
@@ -17,5 +25,6 @@ app.use(async ctx => {
     ctx.status = e?.response?.status ?? e?.status ?? 500
   }
 })
+
 
 app.listen(3000)
