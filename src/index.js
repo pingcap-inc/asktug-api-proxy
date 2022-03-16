@@ -10,6 +10,7 @@ app.use(logger())
 if (Boolean(process.env.ENABLE_CORS)) {
   const cors = require('@koa/cors');
   app.use(cors());
+  console.log('[cors] enabled')
 }
 
 app.use(async (ctx, next) => {

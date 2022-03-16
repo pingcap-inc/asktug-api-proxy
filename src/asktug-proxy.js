@@ -58,17 +58,16 @@ function proxyAsktug (ctx, username) {
         res.setHeader('content-length', asktugRes.headers['content-length'])
       }
       asktugRes
-        .on('data', data => {
-          res.write(data)
-        })
-        .on('end', () => {
-          res.end()
-          resolve()
-        })
+        .pipe(res)
         .on('error', err => {
-          res.statusCode = err.status ?? 500
-          res.write(err.message)
-          reject(err)
+          try {
+            res.statusCode = err.status ?? 500
+            res.write(err.message)
+            reject(err)
+          } catch (e) {
+            console.error(e)
+            reject(e)
+          }
         })
     })
 
