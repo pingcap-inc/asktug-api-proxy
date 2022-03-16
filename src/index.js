@@ -2,9 +2,15 @@ const Koa = require('koa')
 const logger = require('koa-logger')
 const { getUsername } = require('./accounts-client')
 const proxyAsktug = require('./asktug-proxy')
+
 const app = new Koa()
 
 app.use(logger())
+
+if (Boolean(process.env.ENABLE_CORS)) {
+  const cors = require('@koa/cors');
+  app.use(cors());
+}
 
 app.use(async (ctx, next) => {
   try {
