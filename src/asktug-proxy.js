@@ -85,6 +85,10 @@ function proxyAsktug (ctx, username) {
         })
     })
 
+    clientRequest.on('error', (e) => {
+      console.error(e)
+    })
+
     req
       .pipe(clientRequest)
       .on('end', () => {
