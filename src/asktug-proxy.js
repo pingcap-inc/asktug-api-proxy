@@ -38,7 +38,7 @@ function proxyAsktug (ctx, username) {
   return new Promise((resolve, reject) => {
     const authHeaders = username ? {
         'Api-Key': asktug.token,
-        'Api-Username': username,
+        'Api-Username': encodeURIComponent(username),
       } : {}
 
     const clientRequest = request(asktug.url + req.url, {
