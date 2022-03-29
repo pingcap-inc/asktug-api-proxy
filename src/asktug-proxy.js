@@ -36,19 +36,32 @@ function proxyAsktug (ctx, username) {
   const { req, res } = ctx
 
   return new Promise((resolve, reject) => {
-    const authHeaders = username ? {
-        'Api-Key': asktug.token,
-        'Api-Username': encodeURIComponent(username),
-        'Api-Username*': `utf-8\'\'${encodeURIComponent(username)}`
-      } : {}
+    //// https://github.com/discourse/discourse/pull/7129
+    //// utf8 username is invalid
+    //
+    // const authHeaders = username ? {
+    //     'Api-Key': asktug.token,
+    //     'Api-Username': username,
+    //   } : {}
+    let url = asktug.url + req.url
+    const sig = `api_key=${encodeURIComponent(asktug.token)}&api_username=${encodeURIComponent(username)}`
+    if (url.indexOf('?') > 0) {
+      if (url.endsWith('&') || url.endsWith('?')) {
+        url += sig
+      } else {
+        url += '&' + sig
+      }
+    } else {
+      url += '?' + sig
+    }
 
-    const clientRequest = request(asktug.url + req.url, {
+    const clientRequest = request(url, {
       method: req.method,
       timeout: 1500,
       headers: {
-        ...authHeaders,
+        // ...authHeaders,
         'Accept': 'application/json'
-      },
+      }
     }, asktugRes => {
       res.statusCode = asktugRes.statusCode
       res.statusMessage = asktugRes.statusMessage
