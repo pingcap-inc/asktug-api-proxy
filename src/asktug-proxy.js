@@ -83,10 +83,14 @@ function proxyAsktug (ctx, username) {
             reject(e)
           }
         })
+        .on('end', () => {
+          resolve()
+        })
     })
 
     clientRequest.on('error', (e) => {
       console.error(e)
+      reject(e)
     })
 
     req
