@@ -65,6 +65,8 @@ function proxyAsktug (ctx, username) {
     }, asktugRes => {
       res.statusCode = asktugRes.statusCode
       res.statusMessage = asktugRes.statusMessage
+
+      asktugRes.setEncoding('utf8');
       if (asktugRes.headers['content-type']) {
         res.setHeader('content-type', asktugRes.headers['content-type'])
       }
@@ -72,20 +74,19 @@ function proxyAsktug (ctx, username) {
         res.setHeader('content-length', asktugRes.headers['content-length'])
       }
       asktugRes
-        .pipe(res)
+        .on('data', (chunk) => {
+          res.write(chunk)
+        })
         .on('error', err => {
-          try {
-            res.statusCode = err.status ?? 500
-            res.write(err.message)
-            reject(err)
-          } catch (e) {
-            console.error(e)
-            reject(e)
-          }
+          res.statusCode = err.status ?? 500
+          res.write(err.message)
+          reject(err)
         })
         .on('end', () => {
-          resolve()
-        })
+          res.end(() => {
+            resolve()
+          })
+        });
     })
 
     clientRequest.on('error', (e) => {
@@ -95,7 +96,7 @@ function proxyAsktug (ctx, username) {
 
     req
       .pipe(clientRequest)
-      .on('end', () => {
+      .on('finish', () => {
         clientRequest.end()
       })
   })
