@@ -60,7 +60,8 @@ function proxyAsktug (ctx, username) {
       timeout: 1500,
       headers: {
         // ...authHeaders,
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'x-forwarded-for': ctx.request.get('x-forwarded-for'),
       }
     }, asktugRes => {
       res.statusCode = asktugRes.statusCode
