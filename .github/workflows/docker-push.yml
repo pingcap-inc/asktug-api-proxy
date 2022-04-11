@@ -40,18 +40,18 @@ jobs:
       - name: Install deps
         run: pnpm install --frozen-lockfile --prod
 
-      - name: Log into registry ${{ env.REGISTRY }}
+      - name: Log into registry ${{ secrets.DOCKER_REGISTRY_ADDRESS }}/${{ secrets.DOCKER_REGISTRY_NAMESPACE }}
         uses: docker/login-action@28218f9b04b4f3f62068d7b6ce6ca5b26e35336c
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ${{ secrets.DOCKER_REGISTRY_ADDRESS }}/${{ secrets.DOCKER_REGISTRY_NAMESPACE }}
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
 
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ secrets.DOCKER_REGISTRY_ADDRESS }}/${{ secrets.DOCKER_REGISTRY_NAMESPACE }}/asktug-api-proxy
 
       - name: Build and push Docker image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
