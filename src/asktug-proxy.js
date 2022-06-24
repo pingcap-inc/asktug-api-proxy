@@ -43,15 +43,17 @@ function proxyAsktug (ctx, username) {
       'Api-Key': asktug.token,
     } : {}
     let url = asktug.url + req.url
-    const sig = `api_username=${encodeURIComponent(username)}`
-    if (url.indexOf('?') > 0) {
-      if (url.endsWith('&') || url.endsWith('?')) {
-        url += sig
+    if (username) {
+      const sig = `api_username=${encodeURIComponent(username)}`
+      if (url.indexOf('?') > 0) {
+        if (url.endsWith('&') || url.endsWith('?')) {
+          url += sig
+        } else {
+          url += '&' + sig
+        }
       } else {
-        url += '&' + sig
+        url += '?' + sig
       }
-    } else {
-      url += '?' + sig
     }
 
     const clientRequest = request(url, {
