@@ -24,6 +24,16 @@ if (Boolean(process.env.ENABLE_CORS)) {
   console.log('[cors] enabled')
 }
 
+// forbid to visit admin api
+app.use(async (ctx, next) => {
+  if (ctx.request.path.startsWith('/admin/')) {
+    ctx.response.statusCode = 403
+    ctx.response.body = 'FORBIDDEN'
+  } else {
+    await next()
+  }
+})
+
 app.use(async (ctx, next) => {
   if (ctx.request.path === '/healthy/ready') {
     try {
