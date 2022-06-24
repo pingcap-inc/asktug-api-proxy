@@ -39,12 +39,11 @@ function proxyAsktug (ctx, username) {
     //// https://github.com/discourse/discourse/pull/7129
     //// utf8 username is invalid
     //
-    const authHeaders = username ? {
-      'Api-Key': asktug.token,
-    } : {}
     let url = asktug.url + req.url
     if (username) {
-      const sig = `api_username=${encodeURIComponent(username)}`
+      // https://github.com/pingcap/discourse/blob/69a66722364fb23e82e8bb81cf7645c1b7e585db/lib/auth/default_current_user_provider.rb#L300
+      // We could only use one of header or query to pass auth info
+      const sig = `api_key=${encodeURIComponent(asktug.token)}&api_username=${encodeURIComponent(username)}`
       if (url.indexOf('?') > 0) {
         if (url.endsWith('&') || url.endsWith('?')) {
           url += sig
@@ -60,7 +59,6 @@ function proxyAsktug (ctx, username) {
       method: req.method,
       timeout: 1500,
       headers: {
-        ...authHeaders,
         'Accept': 'application/json',
         'x-forwarded-for': ctx.request.get('x-forwarded-for'),
       }
