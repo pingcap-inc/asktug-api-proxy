@@ -39,12 +39,11 @@ function proxyAsktug (ctx, username) {
     //// https://github.com/discourse/discourse/pull/7129
     //// utf8 username is invalid
     //
-    // const authHeaders = username ? {
-    //     'Api-Key': asktug.token,
-    //     'Api-Username': username,
-    //   } : {}
+    const authHeaders = username ? {
+      'Api-Key': asktug.token,
+    } : {}
     let url = asktug.url + req.url
-    const sig = `api_key=${encodeURIComponent(asktug.token)}&api_username=${encodeURIComponent(username)}`
+    const sig = `api_username=${encodeURIComponent(username)}`
     if (url.indexOf('?') > 0) {
       if (url.endsWith('&') || url.endsWith('?')) {
         url += sig
@@ -59,7 +58,7 @@ function proxyAsktug (ctx, username) {
       method: req.method,
       timeout: 1500,
       headers: {
-        // ...authHeaders,
+        ...authHeaders,
         'Accept': 'application/json',
         'x-forwarded-for': ctx.request.get('x-forwarded-for'),
       }
