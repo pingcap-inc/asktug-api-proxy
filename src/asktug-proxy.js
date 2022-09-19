@@ -29,39 +29,27 @@ const request = (url, options, cb) => {
 /**
  *
  * @param ctx {import('koa').Context}
- * @param username {string}
+ * @param externalId {string}
  * @return Promise<void>
  */
-function proxyAsktug (ctx, username) {
+function proxyAsktug (ctx, externalId) {
   const { req, res } = ctx
 
   return new Promise((resolve, reject) => {
-    //// https://github.com/discourse/discourse/pull/7129
-    //// utf8 username is invalid
-    //
+    const headers = {
+      'Accept': 'application/json',
+      'x-forwarded-for': ctx.request.get('x-forwarded-for'),
+    }
     let url = asktug.url + req.url
-    if (username) {
-      // https://github.com/pingcap/discourse/blob/69a66722364fb23e82e8bb81cf7645c1b7e585db/lib/auth/default_current_user_provider.rb#L300
-      // We could only use one of header or query to pass auth info
-      const sig = `api_key=${encodeURIComponent(asktug.token)}&api_username=${encodeURIComponent(username)}`
-      if (url.indexOf('?') > 0) {
-        if (url.endsWith('&') || url.endsWith('?')) {
-          url += sig
-        } else {
-          url += '&' + sig
-        }
-      } else {
-        url += '?' + sig
-      }
+    if (externalId) {
+      headers['Api-Key'] = asktug.token
+      headers['Api-User-External-Id'] = externalId
     }
 
     const clientRequest = request(url, {
       method: req.method,
       timeout: 1500,
-      headers: {
-        'Accept': 'application/json',
-        'x-forwarded-for': ctx.request.get('x-forwarded-for'),
-      }
+      headers,
     }, asktugRes => {
       res.statusCode = asktugRes.statusCode
       res.statusMessage = asktugRes.statusMessage

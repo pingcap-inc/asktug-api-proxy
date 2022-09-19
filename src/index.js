@@ -1,6 +1,6 @@
 const Koa = require('koa')
 const logger = require('koa-logger')
-const { getUsername } = require('./accounts-client')
+const { getExternalId } = require('./accounts-client')
 const proxyAsktug = require('./asktug-proxy')
 const { asktug } = require('./config')
 const Axios = require("axios");
@@ -61,8 +61,8 @@ app.use(async (ctx, next) => {
 // ACCOUNTS_COOKIE_NAME
 app.use(async ctx => {
   try {
-    const username = await getUsername(ctx)
-    await proxyAsktug(ctx, username)
+    const externalId = await getExternalId(ctx)
+    await proxyAsktug(ctx, externalId)
   } catch (e) {
     console.error('proxy failed', e)
     ctx.status = e?.response?.status ?? e?.status ?? 500
